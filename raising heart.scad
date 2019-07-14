@@ -62,10 +62,12 @@ module core_hemisphere() {
     }
 }
 
-//mirror([1,0,0]) {
-//    planform_full();
-//}
-//planform_full();
+union() {
+    mirror([1,0,0]) {
+        planform_full();
+    }
+    planform_full();
+}
 
 module thickness() {
     translate([0,205.59936,0])
@@ -78,10 +80,13 @@ module thickness() {
         ]);
 }
 
-
-/*mirror([1,0,0])
-    thickness();
-thickness();*/
+//translate([0, 0, 100]) {
+//    translate([0, 0, 40])
+//        planform_body();
+//    mirror([1,0,0])
+//        thickness();
+//    thickness();
+//}
 
 module half_body() {
     intersection() {
@@ -104,3 +109,7 @@ translate([0, 0, half_height * 0.5])
 mirror([0, 0, 1])
 translate([0, 0, half_height * 0.5])
     core_hemisphere();
+
+//$vpr = [253.5, 0, 247.3];
+//$vpt =  [20.5071, -59.5808, -27.9886];
+//$vpd = 755.523;
