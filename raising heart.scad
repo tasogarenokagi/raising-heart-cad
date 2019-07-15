@@ -53,12 +53,16 @@ module inner_bevel() {
 
 half_height = (core_radius*4/3);
 
-module core_hemisphere() {
+module core_hemisphere(r, t) {
+    circumscribing_radius = r / cos(t);
+    vertical_offset = -r * tan(t);
+
     color("crimson")
     intersection() {
-        sphere(core_radius);
-        translate([0, 0, core_radius])
-            cube(size = core_radius*2, center = true);
+        translate([0, 0, vertical_offset])
+            sphere(circumscribing_radius, $fa=8);
+        translate([0, 0, r])
+            cube(size = r*2, center = true);
     }
 }
 
@@ -104,11 +108,11 @@ mirror([1,0,0]) {
 half_body();
 
 translate([0, 0, half_height * 0.5])
-    core_hemisphere();
+    core_hemisphere(core_radius, atan(2/3));
 
 mirror([0, 0, 1])
 translate([0, 0, half_height * 0.5])
-    core_hemisphere();
+    core_hemisphere(core_radius, atan(2/3));
 
 //$vpr = [253.5, 0, 247.3];
 //$vpt =  [20.5071, -59.5808, -27.9886];
