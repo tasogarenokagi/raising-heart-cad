@@ -1,6 +1,6 @@
 use <MCAD/utilities.scad>
-use <hsmath/lines.scad>
 
+use <lines.scad>
 include <vertices.scad>
 
 lerx_root_thickness = 10;

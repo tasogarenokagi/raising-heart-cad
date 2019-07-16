@@ -1,5 +1,6 @@
 core_radius = 23.468332;
-core_border_radius = 35.65769931;
+//core_border_radius = 35.65769931;
+core_border_radius = 30;
 
 lerx_vertices = [
     [-68.69342,-46.41036],
@@ -23,18 +24,26 @@ body_vertices = [
     lerx_vertices[2],
     lerx_vertices[1],
     //Wing
-    [-93.4998,-35.93688],
+    [-93.4998,-35.93688],       // 5
     [-150.47711,65.91963],
     [-148.06574,102.74411],
     [-204.01567,205.59936],
     [-196.49172,201.92879],
-    trailing_edge_vertices[3],
+    trailing_edge_vertices[3],  //10
     trailing_edge_vertices[2],
     //Afterbody
     [-29.46548,52.84187],
     [-16.57433,45.67748],
     //Core Cutout
     [-16.60024,31.55794],
+    [-18.58465,-30.43157]       //15
+];
+
+bevel_vertices = [
+    body_vertices[13],
+    [-3.65164, 38.49567],
+    [-3.65164, -392.21935],
+    body_vertices[0],
     [-18.58465,-30.43157]
 ];
 
@@ -56,22 +65,15 @@ module planform_trailing_edge() {
         polygon(points = trailing_edge_vertices);
 }
 
-module planform_inner_bevel() {
+module planform_bevel() {
     color("yellow")
     //linear_extrude(height=half_height, center=true, convexity=4)
     difference() {
         union() {
-            polygon(
-                points = [
-                [-16.57433,45.67748],
-                [-3.65164,38.49567],
-                [-3.65164,-369.76703],
-                [-8.64594,-383.27424],
-                [-18.58465,-30.43157]
-                ]);
+            polygon(points = bevel_vertices);
 
             difference() {
-                    circle(core_border_radius);
+                circle(core_border_radius);
 
                 polygon(
                     points = [
@@ -90,5 +92,5 @@ module planform_full() {
     planform_body();
     planform_lerx();
     planform_trailing_edge();
-    planform_inner_bevel();
+    planform_bevel();
 }
