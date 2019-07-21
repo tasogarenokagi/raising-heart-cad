@@ -1,5 +1,4 @@
 core_radius = 23.468332;
-//core_border_radius = 35.65769931;
 core_border_radius = 30;
 
 lerx_vertices = [
@@ -33,18 +32,14 @@ body_vertices = [
     trailing_edge_vertices[2],
     //Afterbody
     [-29.46548,52.84187],
-    [-16.57433,45.67748],
-    //Core Cutout
-    [-16.60024,31.55794],
-    [-18.58465,-30.43157]       //15
+    [-16.57433,45.67748]
 ];
 
 bevel_vertices = [
     body_vertices[13],
     [-3.65164, 38.49567],
     [-3.65164, -392.21935],
-    body_vertices[0],
-    [-18.58465,-30.43157]
+    body_vertices[0]
 ];
 
 module planform_body() {
@@ -67,7 +62,6 @@ module planform_trailing_edge() {
 
 module planform_bevel() {
     color("yellow")
-    //linear_extrude(height=half_height, center=true, convexity=4)
     difference() {
         union() {
             polygon(points = bevel_vertices);
