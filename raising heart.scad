@@ -1,6 +1,7 @@
 include <MCAD/utilities.scad>
 
 use <lines.scad>
+use <bezier.scad>
 
 use <lerx.scad>
 include <vertices.scad>
@@ -101,14 +102,35 @@ module bezel_section() {
 
 module core_housing() {
     cylinder(r=core_border_radius, half_height, center = true);
+    color("blue")
+    difference() {
+        scale([1, 1, 0.6])
+        rotate([-90, 0, 0])
+        rotate_extrude(angle = 360, convexity = 10) {
+            polygon(cubic_bezier(core_body_control_points[8], core_body_control_points[7], core_body_control_points[6], core_body_control_points[5], 0.1));
+            polygon(cubic_bezier(core_body_control_points[5], core_body_control_points[4], core_body_control_points[3], core_body_control_points[2], 0.1));
+            polygon(quadratic_bezier(core_body_control_points[2], core_body_control_points[1], core_body_control_points[0], 0.1));
+            polygon(points = [
+                core_body_control_points[8],
+                core_body_control_points[5],
+                core_body_control_points[2],
+                core_body_control_points[0]
+            ]);
+        }
+
+        translate([0, 0, half_height])
+            cylinder(r=core_border_radius, half_height, center = true);
+        translate([0, 0, -half_height])
+            cylinder(r=core_border_radius, half_height, center = true);
+    }
 }
 
-union() {
-    mirror([1,0,0]) {
-        planform_full();
-    }
-    planform_full();
-}
+//union() {
+//    mirror([1,0,0]) {
+//        planform_full();
+//    }
+//    planform_full();
+//}
 
 // Completed model below
 mirror([1,0,0]) {
@@ -121,6 +143,7 @@ half_body();
 lerx();
 tip();
 bezel_section();
+
 core_housing();
 
 core_half(core_radius, atan(2/3));
@@ -129,6 +152,6 @@ mirror([0, 0, 1]) {
 }
 
 //polygon(points = [ for(i = [0 : 1 : len(body_vertices) - 3]) body_vertices[i]]);
-//$vpr = [253.5, 0, 247.3];
+//$vpr = [230.40, 0.00, 246.60];
 //$vpt = [20.5071, -59.5808, -27.9886];
 //$vpd = 755.523;

@@ -42,6 +42,26 @@ bevel_vertices = [
     body_vertices[0]
 ];
 
+/* Defines a series of bezier curves.
+   Adjacent vertices share their common vertex.
+ */
+core_body_control_points = [
+    [0, -74.53787],
+
+    [-32.29256, -27.42300],
+    [-35.57901, 0.92603],
+
+    [-37.05366, 13.64633],
+
+    [-33.68487, 21.96261],
+    [-23.71482, 29.99877],
+
+    [-16.60109, 35.73268],
+    //Final curve is only a quadratic curve
+    [-10.09255, 38.47175],
+    [0, 38.47175]
+];
+
 module planform_body() {
     difference() {
         polygon(points = body_vertices);
