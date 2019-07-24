@@ -102,19 +102,20 @@ module bezel_section() {
 
 module core_housing() {
     cylinder(r=core_border_radius, half_height, center = true);
-    color("blue")
     difference() {
-        scale([1, 1, 0.6])
+        scale([1, 1, 0.58])
         rotate([-90, 0, 0])
         rotate_extrude(angle = 360, convexity = 10) {
-            polygon(cubic_bezier(core_body_control_points[8], core_body_control_points[7], core_body_control_points[6], core_body_control_points[5], 0.1));
-            polygon(cubic_bezier(core_body_control_points[5], core_body_control_points[4], core_body_control_points[3], core_body_control_points[2], 0.1));
-            polygon(quadratic_bezier(core_body_control_points[2], core_body_control_points[1], core_body_control_points[0], 0.1));
+
+            polygon(cubic_bezier(core_body_control_points[0], core_body_control_points[1], core_body_control_points[2], core_body_control_points[3], 0.01));
+            polygon(cubic_bezier(core_body_control_points[3], core_body_control_points[4], core_body_control_points[5], core_body_control_points[6], 0.1));
+            polygon(cubic_bezier(core_body_control_points[6], core_body_control_points[7], core_body_control_points[8], core_body_control_points[9], 0.1));
+
             polygon(points = [
-                core_body_control_points[8],
-                core_body_control_points[5],
-                core_body_control_points[2],
-                core_body_control_points[0]
+                core_body_control_points[0],
+                core_body_control_points[3],
+                core_body_control_points[6],
+                core_body_control_points[9]
             ]);
         }
 
