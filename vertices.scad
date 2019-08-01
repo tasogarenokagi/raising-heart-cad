@@ -38,7 +38,7 @@ body_vertices = [
 bevel_vertices = [
     body_vertices[13],
     [-3.65164, 38.49567],
-    [-3.65164, -392.21935],
+    [-3.65164, body_vertices[1][1]],
     body_vertices[0]
 ];
 

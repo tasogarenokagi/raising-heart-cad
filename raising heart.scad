@@ -4,11 +4,10 @@ use <lines.scad>
 use <bezier.scad>
 
 use <lerx.scad>
+include <body.scad>
 include <vertices.scad>
 
 $fa=6;
-half_height = 31.2911;
-//half_height = (core_radius*4/3);
 
 module core_half(r, t) {
     circumscribing_radius = r / cos(t);
@@ -22,18 +21,6 @@ module core_half(r, t) {
         translate([0, 0, r])
             cube(size = r*2, center = true);
     }
-}
-
-body_taper = 0.252592;
-module body_cross_section() {
-    translate([body_vertices[0][0], body_vertices[8][1],0])
-    rotate([90,0,0])
-    linear_extrude(height=body_vertices[8][1] - body_vertices[1][1], scale=body_taper)
-        polygon(points = [
-            [0, -half_height],
-            [body_vertices[8][0] - body_vertices[0][0], 0],
-            [0, half_height]
-        ]);
 }
 
 module tip() {
@@ -58,7 +45,7 @@ module tip() {
             [inside_body_corner[0], -inner_height, 0],
             [bevel_vertices[2][0], -inner_height, 0],
             [bevel_vertices[2][0], inner_height, 0],
-            [bevel_vertices[2][0], 0, body_vertices[1][1] - bevel_vertices[2][1]] ],
+            [body_vertices[0][0], 0, body_vertices[1][1] - body_vertices[0][1]] ],
 
             faces = [
                 [0, 6, 1],
@@ -73,14 +60,6 @@ module tip() {
         );
 }
 
-module half_body() {
-    intersection() {
-        linear_extrude(height=100, center=true, convexity=4)
-            planform_body();
-        body_cross_section();
-    }
-}
-
 module bezel_section() {
     color("yellow")
     intersection() {
@@ -92,7 +71,7 @@ module bezel_section() {
                 half_body();
 
             translate([0, body_vertices[0][1] * 0.6 - core_border_radius])
-                square([half_height * 2, body_vertices[0][1] * -1.2], center = true);
+                square([half_height * 2, abs(body_vertices[0][1] * 1.2)], center = true);
         }
 
         linear_extrude(height = half_height * 2, center = true)
