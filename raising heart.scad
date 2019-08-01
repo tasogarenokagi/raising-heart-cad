@@ -1,4 +1,4 @@
-include <MCAD/utilities.scad>
+include <MCAD/units.scad>
 
 use <lines.scad>
 use <bezier.scad>
@@ -18,7 +18,7 @@ module core_half(r, t) {
     translate([0, 0, -vertical_offset])
     intersection() {
         translate([0, 0, vertical_offset])
-            sphere(circumscribing_radius, $fa=8);
+            sphere(circumscribing_radius);
         translate([0, 0, r])
             cube(size = r*2, center = true);
     }
@@ -101,7 +101,7 @@ module bezel_section() {
 }
 
 module core_housing() {
-    cylinder(r=core_border_radius, half_height, center = true);
+    cylinder(r=core_border_radius, h=half_height, center = true);
     difference() {
         scale([1, 1, 0.58])
         rotate([-90, 0, 0])
@@ -126,6 +126,32 @@ module core_housing() {
     }
 }
 
+module staff() {
+    //Check references!  The part near the head is thinner than the grip!
+    overall_length = 5 * 12 * inch;
+    neck_length = 8 * inch;
+    remaining_length = overall_length - neck_length;
+
+    neck_diameter = 1 * inch;
+    grip_diameter = 4/3 * inch;
+
+    color("hotpink")
+    cylinder(h = 12 * inch, d = neck_diameter);
+
+    color("white")
+    translate([0, 0, neck_length])
+    linear_extrude(height = remaining_length)
+    difference() {
+        circle(d = grip_diameter);
+        circle(d = neck_diameter);
+    }
+
+    cylinder(d = half_height, h = body_vertices[12][1]);
+
+    translate([0, 0, body_vertices[12][1] + 2])
+        cylinder(d1 = half_height, d2 = neck_diameter, h = 30);
+}
+
 //union() {
 //    mirror([1,0,0]) {
 //        planform_full();
@@ -145,12 +171,15 @@ lerx();
 tip();
 bezel_section();
 
-core_housing();
-
 core_half(core_radius, atan(2/3));
 mirror([0, 0, 1]) {
     core_half(core_radius, atan(2/3));
 }
+
+core_housing();
+
+rotate([-90, 0, 0])
+    staff();
 
 //polygon(points = [ for(i = [0 : 1 : len(body_vertices) - 3]) body_vertices[i]]);
 //$vpr = [230.40, 0.00, 246.60];
