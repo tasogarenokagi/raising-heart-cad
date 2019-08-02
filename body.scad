@@ -40,4 +40,32 @@ module half_body() {
             planform_body();
          body_cross_section();
     }
+
+    inner_body_line = mxpb(body_vertices[0], body_vertices[13]);
+
+    inside_body_corner = [ (body_vertices[1][1] - inner_body_line[1]) / inner_body_line[0], body_vertices[1][1] ];
+    outside_corner = body_vertices[1];
+    apex = body_vertices[0];
+
+    inner_height = body_heightmap(inside_body_corner[0], inside_body_corner[1]);
+    outer_height = body_heightmap(outside_corner[0], outside_corner[1]);
+
+    translate([0, outside_corner[1], 0])
+    rotate([90,0,0])
+        polyhedron( points = [
+            [inside_body_corner[0], inner_height, 0],
+            [outside_corner[0], outer_height, 0],
+            [outside_corner[0], -outer_height, 0],
+            [inside_body_corner[0], -inner_height, 0],
+            [apex[0], 0, inside_body_corner[1] - apex[1]] ],
+
+            faces = [
+                [1, 0, 4],
+                [2, 1, 4],
+                [3, 2, 4],
+                [0, 3, 4],
+                [0, 1, 2, 3]
+            ],
+            convexity = 2
+        );
 }
