@@ -3,6 +3,7 @@ include <MCAD/units.scad>
 use <lines.scad>
 use <bezier.scad>
 
+use <bezel.scad>
 use <lerx.scad>
 include <body.scad>
 include <vertices.scad>
@@ -20,25 +21,6 @@ module core_half(r, t) {
             sphere(circumscribing_radius);
         translate([0, 0, r])
             cube(size = r*2, center = true);
-    }
-}
-
-module bezel_section() {
-    color("yellow")
-    intersection() {
-        rotate([0, 90, 0])
-        linear_extrude(height = 40, center = true)
-        intersection() {
-            projection()
-            rotate([0, -90, 0])
-                half_body();
-
-            translate([0, body_vertices[0][1] * 0.6 - core_border_radius])
-                square([half_height * 2, abs(body_vertices[0][1] * 1.2)], center = true);
-        }
-
-        linear_extrude(height = half_height * 2, center = true)
-            planform_bevel();
     }
 }
 
@@ -105,11 +87,11 @@ module staff() {
 mirror([1,0,0]) {
     half_body();
     lerx();
-    bezel_section();
+    bezel();
 }
 half_body();
 lerx();
-bezel_section();
+bezel();
 
 core_half(core_radius, atan(2/3));
 mirror([0, 0, 1]) {
@@ -121,7 +103,6 @@ core_housing();
 rotate([-90, 0, 0])
     staff();
 
-//polygon(points = [ for(i = [0 : 1 : len(body_vertices) - 3]) body_vertices[i]]);
 //$vpr = [230.40, 0.00, 246.60];
 //$vpt = [20.5071, -59.5808, -27.9886];
 //$vpd = 755.523;
