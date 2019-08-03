@@ -4,8 +4,9 @@ use <lines.scad>
 use <bezier.scad>
 
 use <bezel.scad>
+use <body.scad>
 use <lerx.scad>
-include <body.scad>
+
 include <vertices.scad>
 
 $fa=6;

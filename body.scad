@@ -2,7 +2,6 @@ use <lines.scad>
 
 include <vertices.scad>
 
-half_height = 31.2911;
 body_taper = 0.252592;
 
 module body_cross_section() {

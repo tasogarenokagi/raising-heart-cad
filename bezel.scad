@@ -1,6 +1,6 @@
 use <lines.scad>
 
-include <body.scad>
+use <body.scad>
 include <vertices.scad>
 
 function circle_segment_count(r) = $fn > 0 ? ($fn >= 3 ? $fn : 3) : ceil(max(min(360 / $fa, r * 2 * PI / $fs), 5));

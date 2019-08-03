@@ -1,5 +1,6 @@
 core_radius = 23.468332;
 core_border_radius = 30;
+half_height = 31.2911;
 
 lerx_vertices = [
     [-68.69342,-46.41036],
