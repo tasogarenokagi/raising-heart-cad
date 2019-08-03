@@ -10,6 +10,7 @@ function circle_vertices(r) = [ for (i = [0 : circle_segment_count(r) - 1]) [r *
 border_vertices = circle_vertices(core_border_radius);
 core_vertices_2d = circle_vertices(core_radius);
 body_line = mxpb(body_vertices[0], body_vertices[13]);
+bezel_coord = bevel_vertices[1][0]; // vertical line, can't use mxpb()
 
 intersects = [
     for (i = [0 : len(border_vertices) - 2])
@@ -51,7 +52,7 @@ core_vertices = [
         half_height / 2],
 
     for (i = [culled_start + 1 : culled_stop])
-        [each circle_vertices(core_radius)[i], half_height / 2],
+        [each core_vertices_2d[i], half_height / 2],
 
     [each lines_intersection(
         mxpb([0, 0], intersects[culled_stop]),
@@ -90,6 +91,61 @@ module core_bezel() {
     );
 }
 
+module tail_bezel() {
+    corner_apex = apex_vertices[0];
+    corner_base = hidden_vertices[0];
+
+    tail_culling = [
+        for (i = [0 : len(core_vertices_2d) - 2])
+            let (a = core_vertices_2d[i], b = core_vertices_2d[i + 1])
+            if (a[0] >= bezel_coord && b[0] <= bezel_coord)
+                i
+    ][0];
+
+    core_segment = mxpb(core_vertices_2d[tail_culling], core_vertices_2d[tail_culling + 1]);
+    corner_vertices = [
+        [bezel_coord, bezel_coord * core_segment[0] + core_segment[1], half_height / 2],
+        for(i = [tail_culling + 1 : culled_start])
+            [each core_vertices_2d[i], half_height / 2],
+        core_vertices[0]
+    ];
+
+    vertex_count = len(corner_vertices);
+
+    polyhedron(points = [
+            each corner_vertices,
+            corner_apex,
+            corner_base
+        ],
+        faces = [
+            [vertex_count, vertex_count - 1, vertex_count + 1],
+            [vertex_count + 1, for(i = [vertex_count - 1 : -1 : 0]) i],
+            [0, vertex_count, vertex_count + 1],
+            for(i = [0 : vertex_count - 2]) [i, i + 1, vertex_count]
+        ],
+        convexity = 4
+    );
+
+    polyhedron(points = [
+            corner_apex,
+            corner_base,
+            [each bevel_vertices[0], body_heightmap(bevel_vertices[0][0], bevel_vertices[0][1])],
+            [each bevel_vertices[0], half_height / 2],
+            [each bevel_vertices[1], half_height / 2],
+            corner_vertices[0]
+        ],
+        faces = [
+            [0, 5, 1],
+            [0, 1, 3, 2],
+            [4, 3, 1, 5],
+            [4, 2, 3],
+            [0, 2, 5],
+            [2, 4, 5],
+        ],
+        convexity = 4
+    );
+}
+
 module bezel() {
     color("yellow") {
         intersection() {
@@ -109,7 +165,10 @@ module bezel() {
         }
 
         core_bezel();
-        mirror([0, 0, 1])
+        tail_bezel();
+        mirror([0, 0, 1]) {
             core_bezel();
+            tail_bezel();
+        }
     }
 }
