@@ -22,7 +22,7 @@ function mxpb( a, b ) = [
  */
 function perpendicular_line( l, p ) = [
     -1 / l[0],
-    p[0] - (-1 / l[0]) * p[1]
+    p[1] - (-1 / l[0]) * p[0]
 ];
 
 /*
@@ -40,3 +40,9 @@ function distance2(a, b) =
     sqrt( (a[0] - b[0])*(a[0] - b[0]) +
           (a[1] - b[1])*(a[1] - b[1])
     );
+
+module graph_line(line, length = 500) {
+    translate([0, line[1]])
+    rotate([0, 0, atan(line[0])])
+        cube([length, 0.3, 0.3], center = true);
+}
