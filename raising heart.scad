@@ -6,6 +6,7 @@ use <bezier.scad>
 use <bezel.scad>
 use <body.scad>
 use <lerx.scad>
+use <trailing edge.scad>
 
 include <vertices.scad>
 
@@ -51,6 +52,27 @@ module core_housing() {
     }
 }
 
+module can() {
+    can_diameter = 30;
+    can_length = 2 * can_diameter;
+    frustrum_half_angle = 30;
+
+    band_width = 2;
+    band_depth = 1;
+
+    translate([-32, 20, 0])
+    rotate([-110, 0, 25])
+    translate([0, 0, can_length / 4]) {
+        translate([0, 0, -can_length / 4])
+            cylinder(d = can_diameter, h = (can_length * 3 / 4)  - band_width / 2);
+        translate([0, 0, (can_length + band_width) / 2])
+            cylinder(d = can_diameter, h = (can_length - band_width) / 2);
+        cylinder(d = can_diameter - 2 * band_depth, h = can_length);
+        translate([0, 0, can_length])
+            cylinder(d1 = can_diameter, d2 = can_diameter / 2, h = can_diameter / (8 * tan(frustrum_half_angle)));
+    }
+}
+
 module staff() {
     //Check references!  The part near the head is thinner than the grip!
     overall_length = 5 * 12 * inch;
@@ -89,10 +111,14 @@ mirror([1,0,0]) {
     half_body();
     lerx();
     bezel();
+    trailing_edge();
+    can();
 }
 half_body();
 lerx();
 bezel();
+trailing_edge();
+can();
 
 core_half(core_radius, atan(2/3));
 mirror([0, 0, 1]) {
