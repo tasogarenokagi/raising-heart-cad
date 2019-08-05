@@ -1,3 +1,5 @@
+use <MCAD/utilities.scad>
+
 use <lines.scad>
 
 use <body.scad>
@@ -146,8 +148,83 @@ module tail_bezel() {
     );
 }
 
-module bezel() {
-    color("yellow") {
+module spear_corner() {
+    corner_apex = apex_vertices[slice_count - 1];
+    corner_base = hidden_vertices[slice_count - 1];
+
+    spear_culling = [
+        for (i = [0 : len(core_vertices_2d) - 2])
+            let (a = core_vertices_2d[i], b = core_vertices_2d[i + 1])
+            if (a[0] <= bezel_coord && b[0] >= bezel_coord)
+                i
+    ][0];
+
+    core_segment = mxpb(core_vertices_2d[spear_culling], core_vertices_2d[spear_culling + 1]);
+    corner_vertices = [
+        core_vertices[slice_count - 1],
+        for(i = [culled_stop + 1: spear_culling])
+            [each core_vertices_2d[i], half_height / 2],
+        [bezel_coord, bezel_coord * core_segment[0] + core_segment[1], half_height / 2]
+    ];
+
+    vertex_count = len(corner_vertices);
+
+    polyhedron(points = [
+            each corner_vertices,
+            corner_apex,
+            corner_base,
+            [bezel_coord, corner_apex[1], half_height / 2]
+        ],
+        faces = [
+            [vertex_count, vertex_count + 1, 0],
+            [vertex_count + 2, vertex_count + 1, vertex_count],
+            [vertex_count + 1, vertex_count + 2, for(i = [vertex_count - 1 : -1 : 0]) i],
+            [vertex_count, vertex_count - 1, vertex_count + 2],
+            for(i = [0 : vertex_count - 2]) [i, i + 1, vertex_count]
+        ],
+        convexity = 4
+    );
+}
+
+module spear_clipping_brushes() {
+    clipping_width = 3 * distance(apex_vertices[slice_count - 1], [bezel_coord, apex_vertices[slice_count - 1][1], half_height / 2]);
+
+    inner_body_line = mxpb(body_vertices[0], body_vertices[13]);
+    inside_vertex = [ (body_vertices[1][1] - inner_body_line[1]) / inner_body_line[0], body_vertices[1][1] ];
+
+    inside_body_corner = [each inside_vertex, body_heightmap(inside_vertex[0], inside_vertex[1])];
+
+    body_slant_angles = angleBetweenTwoPoints(
+        apex_vertices[slice_count - 1],
+        inside_body_corner);
+    body_slant_length = distance(
+        apex_vertices[slice_count - 1],
+        inside_body_corner);
+    tip_slant_angles = angleBetweenTwoPoints(
+        inside_body_corner,
+        [each body_vertices[0], 0]);
+    tip_slant_length = distance(
+        inside_body_corner,
+        [each body_vertices[0], 0]);
+
+    clipping_angle = angleBetweenTwoPoints(
+        [bezel_coord, apex_vertices[slice_count - 1][1], half_height / 2],
+        apex_vertices[slice_count - 1])[1];
+
+    translate(apex_vertices[slice_count - 1])
+    rotate([clipping_angle, body_slant_angles[1], body_slant_angles[2]])
+    translate([body_slant_length / 2, 0, clipping_width / 2])
+        cube([body_slant_length, clipping_width, clipping_width], center = true);
+
+    translate(inside_body_corner)
+    rotate([clipping_angle, tip_slant_angles[1], tip_slant_angles[2]])
+    translate([0, 0, clipping_width / 2])
+        cube([body_slant_length, clipping_width, clipping_width], center = true);
+}
+
+module spear_bezel() {
+    color("yellow")
+    difference() {
         intersection() {
             rotate([0, 90, 0])
             linear_extrude(height = 40, center = true)
@@ -156,7 +233,7 @@ module bezel() {
                 rotate([0, -90, 0])
                     half_body();
 
-                translate([0, body_vertices[0][1] * 0.6 - core_border_radius])
+                translate([0, body_vertices[0][1] * 0.6 + apex_vertices[slice_count - 1][1] ])
                     square([half_height * 2, abs(body_vertices[0][1] * 1.2)], center = true);
             }
 
@@ -164,11 +241,20 @@ module bezel() {
                 planform_bevel();
         }
 
+        spear_clipping_brushes();
+        mirror([0, 0, 1])
+            spear_clipping_brushes();
+    }
+}
+
+module bezel() {
+    spear_corner();
+    spear_bezel();
+    core_bezel();
+    tail_bezel();
+    mirror([0, 0, 1]) {
+        spear_corner();
         core_bezel();
         tail_bezel();
-        mirror([0, 0, 1]) {
-            core_bezel();
-            tail_bezel();
-        }
     }
 }
