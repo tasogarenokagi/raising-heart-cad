@@ -29,7 +29,7 @@ module core_half(r, t) {
 module core_housing() {
     cylinder(r=core_border_radius, h=half_height, center = true);
     difference() {
-        scale([1, 1, 0.58])
+        scale([1, 1, 0.6])
         rotate([-90, 0, 0])
         rotate_extrude(angle = 360, convexity = 10) {
 
@@ -46,9 +46,9 @@ module core_housing() {
         }
 
         translate([0, 0, half_height])
-            cylinder(r=core_border_radius, half_height, center = true);
+            cylinder(r=100, half_height, center = true);
         translate([0, 0, -half_height])
-            cylinder(r=core_border_radius, half_height, center = true);
+            cylinder(r=100, half_height, center = true);
     }
 }
 
@@ -119,13 +119,13 @@ lerx();
 bezel();
 trailing_edge();
 can();
+core_housing();
+
 
 core_half(core_radius, atan(2/3));
 mirror([0, 0, 1]) {
     core_half(core_radius, atan(2/3));
 }
-
-core_housing();
 
 rotate([-90, 0, 0])
     staff();
