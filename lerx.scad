@@ -12,11 +12,12 @@ apex = lines_intersection(l1, perpendicular_line(l1, lerx_vertices[1]));
 apex_chord_length = length2(apex - lerx_vertices[1]);
 edge_length = length2(apex - lerx_vertices[3]);
 
-module lerx_length_extrusion() {
-    color("blue")
+module lerx() {
+    color("goldenrod")
     translate([lerx_vertices[1][0], lerx_vertices[1][1], -lerx_root_thickness/2])
     rotate([90, 0, atan(-1/l1[0])])
-    linear_extrude(height = 2 * edge_length, center = true) {
+    translate([0, 0, 0.4 * edge_length])
+    linear_extrude(height = 1.3 * edge_length, center = true) {
         polygon(points = [
             [0, 0],
             [0, lerx_root_thickness],
@@ -26,20 +27,20 @@ module lerx_length_extrusion() {
     }
 }
 
-module lerx() {
+module solo_lerx() {
     color("goldenrod")
-    intersection(){
-        lerx_length_extrusion();
-
+    intersection() {
+        lerx();
         linear_extrude(height = lerx_root_thickness, center = true)
             planform_lerx();
     }
 }
 
 planform_full();
-lerx();
+solo_lerx();
+
 
 mirror([1, 0, 0]) {
     planform_full();
-    lerx();
+    solo_lerx();
 }
