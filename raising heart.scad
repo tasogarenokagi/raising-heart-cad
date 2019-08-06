@@ -51,6 +51,26 @@ module core_housing() {
     cylinder(r=core_border_radius, h=half_height, center = true);
 }
 
+module mold_shims() {
+    linear_extrude(height = half_height, center = true)
+        polygon([
+            [bevel_vertices[1][0], 0],
+            bevel_vertices[1],
+            bevel_vertices[0],
+            [bevel_vertices[0][0], 0]
+        ]);
+    mirror([1, 0, 0])
+        linear_extrude(height = half_height, center = true)
+            polygon([
+                [bevel_vertices[1][0], 0],
+                bevel_vertices[1],
+                bevel_vertices[0],
+                [bevel_vertices[0][0], 0]
+            ]);
+    translate([0, abs(bevel_vertices[1][1]) / 2, 0])
+        cube([abs(body_vertices[13][0]) * 2, abs(bevel_vertices[1][1]), half_height - 2], center = true);
+}
+
 module can() {
     can_diameter = 30;
     can_length = 2 * can_diameter;
@@ -81,53 +101,68 @@ module staff() {
     neck_diameter = 1 * inch;
     grip_diameter = 4/3 * inch;
 
-    color("hotpink")
-    cylinder(h = 12 * inch, d = neck_diameter);
+    rotate([-90, 0, 0]) {
+        color("hotpink")
+        cylinder(h = 12 * inch, d = neck_diameter);
 
-    color("white")
-    translate([0, 0, neck_length])
-    linear_extrude(height = remaining_length)
-    difference() {
-        circle(d = grip_diameter);
-        circle(d = neck_diameter);
+        color("white")
+        translate([0, 0, neck_length])
+        linear_extrude(height = remaining_length)
+        difference() {
+            circle(d = grip_diameter);
+            circle(d = neck_diameter);
+        }
+
+        cylinder(d = half_height, h = body_vertices[12][1]);
+
+        translate([0, 0, body_vertices[12][1] + 2])
+            cylinder(d1 = half_height, d2 = neck_diameter, h = 30);
     }
-
-    cylinder(d = half_height, h = body_vertices[12][1]);
-
-    translate([0, 0, body_vertices[12][1] + 2])
-        cylinder(d1 = half_height, d2 = neck_diameter, h = 30);
 }
 
-//union() {
-//    mirror([1,0,0]) {
-//        planform_full();
-//    }
-//    planform_full();
-//}
+module full_head(mold = false) {
+    mirror([1,0,0]) {
+        half_body();
+        lerx();
+        bezel();
+        trailing_edge();
+        if (mold == false) {
+            can();
+        }
+    }
 
-// Completed model below
-mirror([1,0,0]) {
     half_body();
     lerx();
     bezel();
     trailing_edge();
-    can();
+    if (mold == false) {
+        can();
+    }
+    core_housing();
+
+    if (mold == true) {
+        mold_shims();
+    } else {
+        core_half(core_radius, atan(2/3));
+        mirror([0, 0, 1]) {
+            core_half(core_radius, atan(2/3));
+        }
+    }
 }
-half_body();
-lerx();
-bezel();
-trailing_edge();
-can();
-core_housing();
 
+module mold() {
+    difference() {
+        translate([0, -100, -25])
+            cube([500, 650, 50], center = true);
 
-core_half(core_radius, atan(2/3));
-mirror([0, 0, 1]) {
-    core_half(core_radius, atan(2/3));
+        full_head(true);
+    }
 }
 
-rotate([-90, 0, 0])
-    staff();
+full_head();
+//staff();
+
+//mold();
 
 //ffmpeg -i frame%05d.png -c:v libvpx -crf 4 -b:v 1M -an -r 30 spin.webm
 //$vpt = [0, -56.9, -16.6];
