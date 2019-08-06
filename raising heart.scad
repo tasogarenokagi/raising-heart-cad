@@ -27,21 +27,18 @@ module core_half(r, t) {
 }
 
 module core_housing() {
-    cylinder(r=core_border_radius, h=half_height, center = true);
     difference() {
-        scale([1, 1, 0.6])
+        scale([1, 1, 0.605])
         rotate([-90, 0, 0])
         rotate_extrude(angle = 360, convexity = 10) {
 
             polygon(cubic_bezier(core_body_control_points[0], core_body_control_points[1], core_body_control_points[2], core_body_control_points[3], 0.01));
-            polygon(cubic_bezier(core_body_control_points[3], core_body_control_points[4], core_body_control_points[5], core_body_control_points[6], 0.1));
-            polygon(cubic_bezier(core_body_control_points[6], core_body_control_points[7], core_body_control_points[8], core_body_control_points[9], 0.1));
 
             polygon(points = [
                 core_body_control_points[0],
                 core_body_control_points[3],
-                core_body_control_points[6],
-                core_body_control_points[9]
+                [-20, 20],
+                [0, 20]
             ]);
         }
 
@@ -50,6 +47,8 @@ module core_housing() {
         translate([0, 0, -half_height])
             cylinder(r=100, half_height, center = true);
     }
+
+    cylinder(r=core_border_radius, h=half_height, center = true);
 }
 
 module can() {
