@@ -52,18 +52,22 @@ module half_body() {
     translate([0, outside_corner[1], 0])
     rotate([90,0,0])
         polyhedron( points = [
-            [inside_body_corner[0], inner_height, 0],
-            [outside_corner[0], outer_height, 0],
-            [outside_corner[0], -outer_height, 0],
-            [inside_body_corner[0], -inner_height, 0],
-            [apex[0], 0, inside_body_corner[1] - apex[1]] ],
-
+                [inside_body_corner[0], inner_height, 0],
+                [outside_corner[0], outer_height, 0],
+                [outside_corner[0], -outer_height, 0],
+                [inside_body_corner[0], -inner_height, 0],
+                [apex[0], 0, inside_body_corner[1] - apex[1]],
+                [body_vertices[0][0], -inner_height, 0],
+                [body_vertices[0][0], inner_height, 0]
+            ],
             faces = [
                 [1, 0, 4],
                 [2, 1, 4],
                 [3, 2, 4],
-                [0, 3, 4],
-                [0, 1, 2, 3]
+                [0, 1, 2, 3, 5, 6],
+                [3, 4, 5],
+                [0, 6, 4],
+                [6, 5, 4]
             ],
             convexity = 2
         );

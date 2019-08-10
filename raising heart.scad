@@ -122,7 +122,13 @@ module staff() {
 
 module full_head(mold = false) {
     mirror([1,0,0]) {
-        half_body();
+        difference() {
+            half_body();
+
+            spear_clipping_brushes();
+            mirror([0, 0, 1])
+                spear_clipping_brushes();
+        }
         lerx();
         bezel();
         trailing_edge();
@@ -131,7 +137,13 @@ module full_head(mold = false) {
         }
     }
 
-    half_body();
+    difference() {
+        half_body();
+
+        spear_clipping_brushes();
+        mirror([0, 0, 1])
+            spear_clipping_brushes();
+    }
     lerx();
     bezel();
     trailing_edge();
@@ -155,7 +167,13 @@ module mold() {
         translate([0, -100, -25])
             cube([500, 650, 50], center = true);
 
-        full_head(true);
+        translate([0, 0, -1]) {
+            linear_extrude(height = 1, convexity = 5)
+            projection()
+                full_head(true);
+
+            full_head(true);
+        }
     }
 }
 
@@ -169,6 +187,6 @@ full_head();
 //$vpr = [64, 0, (330 + 360 * $t) % 360];
 //$vpd = 1024;
 
-//$vpr = [230.40, 0.00, 246.60];
-//$vpt = [20.5071, -59.5808, -27.9886];
+//$vpr = [50.4, 0.00, 293.4];
+//$vpt = [45.56, -34.41, 10.65];
 //$vpd = 755.523;
