@@ -5,6 +5,7 @@ use <bezier.scad>
 
 use <bezel.scad>
 use <body.scad>
+use <can.scad>
 use <lerx.scad>
 use <trailing edge.scad>
 
@@ -71,27 +72,6 @@ module mold_shims() {
         cube([abs(body_vertices[13][0]) * 2, abs(bevel_vertices[1][1]), half_height - 2], center = true);
 }
 
-module can() {
-    can_diameter = 30;
-    can_length = 2 * can_diameter;
-    frustrum_half_angle = 30;
-
-    band_width = 2;
-    band_depth = 1;
-
-    translate([-32, 20, 0])
-    rotate([-110, 0, 25])
-    translate([0, 0, can_length / 4]) {
-        translate([0, 0, -can_length / 4])
-            cylinder(d = can_diameter, h = (can_length * 3 / 4)  - band_width / 2);
-        translate([0, 0, (can_length + band_width) / 2])
-            cylinder(d = can_diameter, h = (can_length - band_width) / 2);
-        cylinder(d = can_diameter - 2 * band_depth, h = can_length);
-        translate([0, 0, can_length])
-            cylinder(d1 = can_diameter, d2 = can_diameter / 2, h = can_diameter / (8 * tan(frustrum_half_angle)));
-    }
-}
-
 module staff() {
     //Check references!  The part near the head is thinner than the grip!
     overall_length = 5 * 12 * inch;
@@ -125,6 +105,7 @@ module full_head(mold = false) {
         difference() {
             half_body();
 
+            can_socket();
             spear_clipping_brushes();
             mirror([0, 0, 1])
                 spear_clipping_brushes();
@@ -140,6 +121,7 @@ module full_head(mold = false) {
     difference() {
         half_body();
 
+        can_socket();
         spear_clipping_brushes();
         mirror([0, 0, 1])
             spear_clipping_brushes();
