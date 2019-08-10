@@ -182,7 +182,7 @@ full_head();
 
 //mold();
 
-//ffmpeg -i frame%05d.png -c:v libvpx -crf 4 -b:v 1M -an -r 30 spin.webm
+//ffmpeg -r 30 -i frame%05d.png -c:v libvpx -crf 4 -b:v 1M -an -r 30 spin.webm
 //$vpt = [0, -56.9, -16.6];
 //$vpr = [64, 0, (330 + 360 * $t) % 360];
 //$vpd = 1024;
@@ -190,3 +190,8 @@ full_head();
 //$vpr = [50.4, 0.00, 293.4];
 //$vpt = [45.56, -34.41, 10.65];
 //$vpd = 755.523;
+
+// Duplicate pose in scan 0037
+//$vpr = [181, 330, 219];
+//$vpt = [26.34, 19.43, -4.27];
+//$vpd = 1659.67;
