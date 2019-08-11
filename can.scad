@@ -1,5 +1,7 @@
 include <MCAD/units.scad>
 
+use <bezier.scad>
+
 can_diameter = 30;
 can_length = 60;
 
@@ -10,8 +12,8 @@ band_location = can_length - can_diameter;
 endcap_half_angle = 30;
 endcap_height = can_diameter / (8 * tan(endcap_half_angle));
 
-can_angles = [-120, 0, 28];
-can_location = [-30, 18, 0];
+can_angles = [-120, 0, 30];
+can_location = [-25, 18, 0];
 
 module can_isolated() {
     translate([0, 0, endcap_height]) {
@@ -36,11 +38,20 @@ module can_isolated() {
 }
 
 module can_socket_isolated() {
-        translate([0, 0, endcap_height]) {
-            cylinder(d = can_diameter * 1.4, h = can_length * 1.5);
-            translate([0, 0, -endcap_height])
-                cylinder(d1 = can_diameter, d2 = can_diameter * 1.4, h = endcap_height);
-        }
+    control_points = [
+        [9, 0],
+        [16.14545, 0],
+        [27.20684, 14.75294],
+        [31.81342, 60]
+    ];
+
+    rotate_extrude()
+        polygon(points = [
+            [0, 0],
+            each cubic_bezier(control_points[0], control_points[1], control_points[2], control_points[3], 0.05),
+            [control_points[3][0], 60],
+            [0, 60]
+        ]);
 }
 
 module can() {
@@ -58,7 +69,8 @@ module can_socket() {
 }
 
 difference() {
-    cube([50, 50, 20], center = true);
+    translate([0, -30, -1])
+        cube([30, 60, 30]);
     can_socket_isolated();
 }
 
