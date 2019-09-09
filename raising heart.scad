@@ -6,51 +6,13 @@ use <bezier.scad>
 use <bezel.scad>
 use <body.scad>
 use <can.scad>
+use <core.scad>
 use <lerx.scad>
 use <trailing edge.scad>
 
 include <vertices.scad>
 
 $fa=6;
-
-module core_half(r, t) {
-    circumscribing_radius = r / cos(t);
-    vertical_offset = -r * tan(t);
-
-    color("crimson")
-    translate([0, 0, -vertical_offset])
-    intersection() {
-        translate([0, 0, vertical_offset])
-            sphere(circumscribing_radius);
-        translate([0, 0, r])
-            cube(size = r*2, center = true);
-    }
-}
-
-module core_housing() {
-    difference() {
-        scale([1, 1, 0.605])
-        rotate([-90, 0, 0])
-        rotate_extrude(angle = 360, convexity = 10) {
-
-            polygon(cubic_bezier(core_body_control_points[0], core_body_control_points[1], core_body_control_points[2], core_body_control_points[3], 0.01));
-
-            polygon(points = [
-                core_body_control_points[0],
-                core_body_control_points[3],
-                [-20, 20],
-                [0, 20]
-            ]);
-        }
-
-        translate([0, 0, half_height])
-            cylinder(r=100, half_height, center = true);
-        translate([0, 0, -half_height])
-            cylinder(r=100, half_height, center = true);
-    }
-
-    cylinder(r=core_border_radius, h=half_height, center = true);
-}
 
 module mold_shims() {
     linear_extrude(height = half_height, center = true)
@@ -132,17 +94,12 @@ module full_head(mold = false) {
     if (mold == false) {
         can();
     }
-    core_housing();
 
     if (mold == true) {
         mold_shims();
+        core_housing();
     } else {
-        translate([0, 0, -epsilon])
-            core_half(core_radius, atan(2/3));
-
-        mirror([0, 0, 1])
-        translate([0, 0, -epsilon])
-            core_half(core_radius, atan(2/3));
+        core_assembly();
     }
 }
 
