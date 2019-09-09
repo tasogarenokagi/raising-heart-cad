@@ -137,10 +137,12 @@ module full_head(mold = false) {
     if (mold == true) {
         mold_shims();
     } else {
-        core_half(core_radius, atan(2/3));
-        mirror([0, 0, 1]) {
+        translate([0, 0, -epsilon])
             core_half(core_radius, atan(2/3));
-        }
+
+        mirror([0, 0, 1])
+        translate([0, 0, -epsilon])
+            core_half(core_radius, atan(2/3));
     }
 }
 
