@@ -104,6 +104,7 @@ module full_head(mold = false) {
 }
 
 module mold() {
+    render(convexity = 12)
     difference() {
         translate([0, -100, -25])
             cube([500, 650, 50], center = true);
