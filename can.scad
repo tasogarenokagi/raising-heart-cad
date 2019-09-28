@@ -57,7 +57,7 @@ module can_socket_isolated() {
 module can() {
     translate(can_location)
     rotate(can_angles)
-    translate([0, 0, can_length / 4])
+    translate([0, 0, (can_length / 4) - epsilon])
         can_isolated();
 }
 
