@@ -12,8 +12,8 @@ band_location = can_length - can_diameter;
 endcap_half_angle = 30;
 endcap_height = can_diameter / (8 * tan(endcap_half_angle));
 
-can_angles = [-120, 0, 30];
-can_location = [-25, 18, 0];
+can_angles = [-105, 0, 17];
+can_location = [-32, 18, 0];
 
 module can_isolated() {
     translate([0, 0, endcap_height]) {
