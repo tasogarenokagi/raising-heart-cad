@@ -14,7 +14,14 @@ include <vertices.scad>
 
 $fa=6;
 
+ASSEMBLE_HEAD = 1;
+ASSEMBLE_FULL = 2;
+ASSEMBLE_MOLD = 3;
+ASSEMBLE_MOLD_POSITIVE = 4;
+ASSEMBLE_MOLD_REAR = 5;
+
 module mold_shims() {
+    //Fill in bezel overhangs
     linear_extrude(height = half_height, center = true)
         polygon([
             [bevel_vertices[1][0], 0],
@@ -30,6 +37,8 @@ module mold_shims() {
                 bevel_vertices[0],
                 [bevel_vertices[0][0], 0]
             ]);
+
+    //Fill in central rear cavity
     translate([0, abs(bevel_vertices[1][1]) / 2, 0])
         cube([abs(body_vertices[13][0]) * 2, abs(bevel_vertices[1][1]), half_height - 2], center = true);
 }
@@ -62,28 +71,13 @@ module staff() {
     }
 }
 
-module full_head(mold = false) {
-    mirror([1,0,0]) {
-        difference() {
-            half_body();
-
-            can_socket();
-            spear_clipping_brushes();
-            mirror([0, 0, 1])
-                spear_clipping_brushes();
-        }
-        lerx();
-        bezel();
-        trailing_edge();
-        if (mold == false) {
-            can();
-        }
-    }
-
+module assemble_half_head(assembly_mode) {
     difference() {
         half_body();
 
-        can_socket();
+        if (assembly_mode == ASSEMBLE_HEAD ) {
+            can_socket();
+        }
         spear_clipping_brushes();
         mirror([0, 0, 1])
             spear_clipping_brushes();
@@ -91,11 +85,19 @@ module full_head(mold = false) {
     lerx();
     bezel();
     trailing_edge();
-    if (mold == false) {
+    if (assembly_mode == ASSEMBLE_HEAD) {
         can();
     }
+}
 
-    if (mold == true) {
+module full_head(assembly_mode) {
+    mirror([1,0,0]) {
+        assemble_half_head(assembly_mode);
+    }
+
+    assemble_half_head(assembly_mode);
+
+    if (assembly_mode == ASSEMBLE_MOLD) {
         mold_shims();
         core_housing();
     } else {
@@ -112,17 +114,37 @@ module mold() {
         translate([0, 0, -1]) {
             linear_extrude(height = 1, convexity = 5)
             projection()
-                full_head(true);
+                full_head(ASSEMBLE_MOLD);
 
-            full_head(true);
+            full_head(ASSEMBLE_MOLD);
         }
     }
 }
 
-full_head();
-//staff();
+module assemble_parts(assembly_mode) {
+    if (assembly_mode == ASSEMBLE_HEAD) {
+        full_head(ASSEMBLE_HEAD);
+    } else if (assembly_mode == ASSEMBLE_FULL) {
+        full_head(ASSEMBLE_HEAD);
+        staff();
+    } else if (assembly_mode == ASSEMBLE_MOLD) {
+        mold();
+    } else if (assembly_mode == ASSEMBLE_MOLD_POSITIVE) {
+        full_head(ASSEMBLE_MOLD);
+    } else if (assembly_mode == ASSEMBLE_MOLD_REAR) {
+        mold();
+    }
+}
 
-//mold();
+/*
+    ASSEMBLE_HEAD - Complete head, with core spheres and cans
+    ASSEMBLE_FULL - The complete head plus the staff and staff fittings
+    ASSEMBLE_MOLD - Negative mold of the head, with geometry changes to make it suitable for thermoforming
+    ASSEMBLE_MOLD_POSITIVE - Positive of the mold cavity
+    ASSEMBLE_MOLD_REAR - Negative mold of the rear part of the head, including the can sockets
+ */
+
+assemble_parts(ASSEMBLE_FULL);
 
 //ffmpeg -r 30 -i frame%05d.png -c:v libvpx -crf 4 -b:v 1M -an -r 30 spin.webm
 //$vpt = [0, -56.9, -16.6];
