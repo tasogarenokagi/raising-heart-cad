@@ -28,7 +28,7 @@ body_vertices = [
     [-150.47711,65.91963],
     [-148.06574,102.74411],
     [-204.01567,205.59936],
-    [-196.49172,201.92879],
+    trailing_edge_vertices[0],
     trailing_edge_vertices[3],  //10
     trailing_edge_vertices[2],
     //Afterbody
