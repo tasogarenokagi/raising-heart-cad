@@ -64,6 +64,21 @@ core_vertices = [
 
 slice_count = len(culled_vertices);
 
+tail_corner_culling = [
+    for (i = [0 : len(core_vertices_2d) - 2])
+        let (a = core_vertices_2d[i], b = core_vertices_2d[i + 1])
+        if (a[0] >= bezel_coord && b[0] <= bezel_coord)
+            i
+][0];
+
+tail_corner_core_segment = mxpb(core_vertices_2d[tail_corner_culling], core_vertices_2d[tail_corner_culling + 1]);
+tail_corner_core_vertices = [
+    [bezel_coord, bezel_coord * tail_corner_core_segment[0] + tail_corner_core_segment[1], half_height / 2],
+    for(i = [tail_corner_culling + 1 : culled_start])
+        [each core_vertices_2d[i], half_height / 2],
+    core_vertices[0]
+];
+
 module core_bezel() {
     polyhedron(
         points = [
@@ -97,25 +112,10 @@ module tail_bezel() {
     corner_apex = apex_vertices[0];
     corner_base = hidden_vertices[0];
 
-    tail_culling = [
-        for (i = [0 : len(core_vertices_2d) - 2])
-            let (a = core_vertices_2d[i], b = core_vertices_2d[i + 1])
-            if (a[0] >= bezel_coord && b[0] <= bezel_coord)
-                i
-    ][0];
-
-    core_segment = mxpb(core_vertices_2d[tail_culling], core_vertices_2d[tail_culling + 1]);
-    corner_vertices = [
-        [bezel_coord, bezel_coord * core_segment[0] + core_segment[1], half_height / 2],
-        for(i = [tail_culling + 1 : culled_start])
-            [each core_vertices_2d[i], half_height / 2],
-        core_vertices[0]
-    ];
-
-    vertex_count = len(corner_vertices);
+    vertex_count = len(tail_corner_core_vertices);
 
     polyhedron(points = [
-            each corner_vertices,
+            each tail_corner_core_vertices,
             corner_apex,
             corner_base
         ],
@@ -134,7 +134,7 @@ module tail_bezel() {
             [each bevel_vertices[0], body_heightmap(bevel_vertices[0][0], bevel_vertices[0][1])],
             [each bevel_vertices[0], half_height / 2],
             [each bevel_vertices[1], half_height / 2],
-            corner_vertices[0]
+            tail_corner_core_vertices[0]
         ],
         faces = [
             [0, 5, 1],
