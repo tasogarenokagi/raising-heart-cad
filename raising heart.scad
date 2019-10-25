@@ -12,7 +12,7 @@ use <trailing edge.scad>
 
 include <vertices.scad>
 
-$fa=6;
+$fn = 60;
 
 ASSEMBLE_HEAD = 1;
 ASSEMBLE_FULL = 2;

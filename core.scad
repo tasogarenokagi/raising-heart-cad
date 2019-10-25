@@ -4,8 +4,6 @@ use <bezier.scad>
 
 include <vertices.scad>
 
-$fa=6;
-
 module core_half(r, t) {
     circumscribing_radius = r / cos(t);
     vertical_offset = -r * tan(t);
