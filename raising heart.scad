@@ -8,40 +8,19 @@ use <body.scad>
 use <can.scad>
 use <core.scad>
 use <lerx.scad>
+use <mold.scad>
 use <trailing edge.scad>
 
 include <vertices.scad>
 
 $fn = 60;
 
-ASSEMBLE_HEAD = 1;
-ASSEMBLE_FULL = 2;
-ASSEMBLE_MOLD = 3;
-ASSEMBLE_MOLD_POSITIVE = 4;
-ASSEMBLE_MOLD_REAR = 5;
-
-module mold_shims() {
-    //Fill in bezel overhangs
-    linear_extrude(height = half_height, center = true)
-        polygon([
-            [bevel_vertices[1][0], 0],
-            bevel_vertices[1],
-            bevel_vertices[0],
-            [bevel_vertices[0][0], 0]
-        ]);
-    mirror([1, 0, 0])
-        linear_extrude(height = half_height, center = true)
-            polygon([
-                [bevel_vertices[1][0], 0],
-                bevel_vertices[1],
-                bevel_vertices[0],
-                [bevel_vertices[0][0], 0]
-            ]);
-
-    //Fill in central rear cavity
-    translate([0, abs(bevel_vertices[1][1]) / 2, 0])
-        cube([abs(body_vertices[13][0]) * 2, abs(bevel_vertices[1][1]), half_height - 2], center = true);
-}
+ASSEMBLE_HEAD = "ASSEMBLE_HEAD";
+ASSEMBLE_FULL = "ASSEMBLE_FULL";
+ASSEMBLE_MOLD = "ASSEMBLE_MOLD";
+ASSEMBLE_MOLD_POSITIVE = "ASSEMBLE_MOLD_POSITIVE";
+ASSEMBLE_REAR = "ASSEMBLE_REAR";
+ASSEMBLE_HACKJOB = "ASSEMBLE_HACKJOB";
 
 module staff() {
     //Check references!  The part near the head is thinner than the grip!
@@ -75,9 +54,7 @@ module assemble_half_head(assembly_mode) {
     difference() {
         half_body();
 
-        if (assembly_mode == ASSEMBLE_HEAD ) {
-            can_socket();
-        }
+        can_socket();
         spear_clipping_brushes();
         mirror([0, 0, 1])
             spear_clipping_brushes();
@@ -98,26 +75,9 @@ module full_head(assembly_mode) {
     assemble_half_head(assembly_mode);
 
     if (assembly_mode == ASSEMBLE_MOLD) {
-        mold_shims();
         core_housing();
     } else {
         core_assembly();
-    }
-}
-
-module mold() {
-    render(convexity = 12)
-    difference() {
-        translate([0, -100, -25])
-            cube([500, 650, 50], center = true);
-
-        translate([0, 0, -1]) {
-            linear_extrude(height = 1, convexity = 5)
-            projection()
-                full_head(ASSEMBLE_MOLD);
-
-            full_head(ASSEMBLE_MOLD);
-        }
     }
 }
 
@@ -128,11 +88,22 @@ module assemble_parts(assembly_mode) {
         full_head(ASSEMBLE_HEAD);
         staff();
     } else if (assembly_mode == ASSEMBLE_MOLD) {
-        mold();
+        mold()
+        difference(){
+            full_head(ASSEMBLE_MOLD);
+            mold_back_clipping_brush("cylinder");
+        }
     } else if (assembly_mode == ASSEMBLE_MOLD_POSITIVE) {
-        full_head(ASSEMBLE_MOLD);
-    } else if (assembly_mode == ASSEMBLE_MOLD_REAR) {
-        mold();
+        difference(){
+            full_head(ASSEMBLE_MOLD);
+            mold_back_clipping_brush("cylinder");
+        }
+    } else if (assembly_mode == ASSEMBLE_REAR) {
+        intersection() {
+            full_head(ASSEMBLE_MOLD);
+            mold_back_clipping_brush("cylinder");
+        }
+    } else if (assembly_mode == ASSEMBLE_HACKJOB) {
     }
 }
 
@@ -141,7 +112,8 @@ module assemble_parts(assembly_mode) {
     ASSEMBLE_FULL - The complete head plus the staff and staff fittings
     ASSEMBLE_MOLD - Negative mold of the head, with geometry changes to make it suitable for thermoforming
     ASSEMBLE_MOLD_POSITIVE - Positive of the mold cavity
-    ASSEMBLE_MOLD_REAR - Negative mold of the rear part of the head, including the can sockets
+    ASSEMBLE_REAR - Negative mold of the rear part of the head, including the can sockets
+    ASSEMBLE_HACKJOB - Sandbox for whatever I'm working on currently
  */
 
 assemble_parts(ASSEMBLE_FULL);
