@@ -16,11 +16,31 @@ module mold() {
     }
 }
 
-module mold_back_clipping_brush(mode) {
+split_point_inner = apex_vertices[0];
+split_face_line = mxpb(body_vertices[11], body_vertices[12]);
+split_point = [(split_point_inner[1] - split_face_line[1]) / split_face_line[0], split_point_inner[1]];
+
+back_envelope_half = [
+    [body_vertices[12][0], body_vertices[12][1] + epsilon],
+    [split_point[0] - epsilon, split_point[1]],
+    [apex_vertices[0][0], apex_vertices[0][1]],
+    [tail_corner_core_vertices[0][0], tail_corner_core_vertices[0][1]],
+];
+
+back_envelope_vertices = [
+    for (i = [0 : len(back_envelope_half) - 1]) back_envelope_half[i],
+    for (i = [len(back_envelope_half) - 1 : -1 : 0]) [-back_envelope_half[i].x, back_envelope_half[i].y],
+];
+
+back_cap_envelope_vertices = [
+    for (i = [2 : 5]) back_envelope_vertices[i],
+];
+
+module back_clipping_brush(mode) {
     linear_extrude(height = half_height * 2, convexity = 4, center = true) {
         difference() {
-            mold_back_polygon();
-            
+            polygon(points = back_envelope_vertices, convexity = 4);
+
             if (mode == "cylinder") {
                 circle(r = core_radius);
             }
@@ -28,21 +48,18 @@ module mold_back_clipping_brush(mode) {
     }
 }
 
-module mold_back_polygon() {
-    split_point_inner = apex_vertices[0];
-    split_face_line = mxpb(body_vertices[11], body_vertices[12]);
-    split_point = [(split_point_inner[1] - split_face_line[1]) / split_face_line[0], split_point_inner[1]];
+module back_cap_clipping_brush(mode) {
+    plug_length = 40;
+    translate([0, (plug_length / 2) + back_cap_envelope_vertices[0][1], 0])
+        cube([abs(back_cap_envelope_vertices[0][0] * 2), plug_length, half_height], center = true);
 
-    constraints = [
-        [body_vertices[12][0], body_vertices[12][1] + epsilon],
-        [split_point[0] - epsilon, split_point[1]],
-        [apex_vertices[0][0], apex_vertices[0][1]],
-        [tail_corner_core_vertices[0][0], tail_corner_core_vertices[0][1]],
-        [-tail_corner_core_vertices[0][0], tail_corner_core_vertices[0][1]],
-        [-apex_vertices[0][0], apex_vertices[0][1]],
-        [-split_point[0] + epsilon, split_point[1]],
-        [-body_vertices[12][0], body_vertices[12][1] + epsilon],
-    ];
+    linear_extrude(height = half_height * 2, convexity = 4, center = true) {
+        difference() {
+            polygon(points = back_cap_envelope_vertices, convexity = 4);
 
-    polygon(points = constraints, convexity = 4);
+            if (mode == "cylinder") {
+                circle(r = core_radius);
+            }
+        }
+    }
 }
