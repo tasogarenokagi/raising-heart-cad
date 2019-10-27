@@ -32,11 +32,16 @@ back_envelope_vertices = [
     for (i = [len(back_envelope_half) - 1 : -1 : 0]) [-back_envelope_half[i].x, back_envelope_half[i].y],
 ];
 
+back_tail_envelope_vertices = [
+    for (i = [0 : 1]) back_envelope_vertices[i],
+    for (i = [6 : 7]) back_envelope_vertices[i],
+];
+
 back_cap_envelope_vertices = [
     for (i = [2 : 5]) back_envelope_vertices[i],
 ];
 
-module back_clipping_brush(mode) {
+module back_clipping_solid(mode) {
     linear_extrude(height = half_height * 2, convexity = 4, center = true) {
         difference() {
             polygon(points = back_envelope_vertices, convexity = 4);
@@ -48,11 +53,12 @@ module back_clipping_brush(mode) {
     }
 }
 
-module back_cap_clipping_brush(mode) {
-    plug_length = 40;
-    translate([0, (plug_length / 2) + back_cap_envelope_vertices[0][1], 0])
-        cube([abs(back_cap_envelope_vertices[0][0] * 2), plug_length, half_height], center = true);
+module back_tail_clipping_solid(mode) {
+    linear_extrude(height = half_height * 2, convexity = 4, center = true)
+        polygon(points = back_tail_envelope_vertices, convexity = 4);
+}
 
+module back_cap_clipping_solid(mode) {
     linear_extrude(height = half_height * 2, convexity = 4, center = true) {
         difference() {
             polygon(points = back_cap_envelope_vertices, convexity = 4);

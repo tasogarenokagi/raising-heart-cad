@@ -75,7 +75,7 @@ module full_head(assembly_mode) {
 
     if (assembly_mode == ASSEMBLE_MOLD) {
         core_housing();
-    } else {
+    } else if (assembly_mode != ASSEMBLE_REAR) {
         core_assembly();
     }
 }
@@ -90,22 +90,30 @@ module assemble_parts(assembly_mode) {
         mold()
         difference(){
             full_head(ASSEMBLE_MOLD);
-            mold_back_clipping_brush("cylinder");
+            back_clipping_solid("cylinder");
         }
     } else if (assembly_mode == ASSEMBLE_MOLD_POSITIVE) {
         difference(){
             full_head(ASSEMBLE_MOLD);
-            back_clipping_brush("cylinder");
+            back_clipping_solid("cylinder");
         }
     } else if (assembly_mode == ASSEMBLE_REAR) {
         intersection() {
-            full_head(ASSEMBLE_MOLD);
-            back_clipping_brush("cylinder");
+            full_head(assembly_mode);
+            back_tail_clipping_solid();
         }
     } else if (assembly_mode == ASSEMBLE_HACKJOB) {
         intersection() {
-            full_head(ASSEMBLE_MOLD);
-            back_cap_clipping_brush("cylinder");
+            union() {
+                mirror([1, 0, 0])
+                    bezel();
+                bezel();
+            }
+            back_cap_clipping_solid("cylinder");
+        }
+        intersection() {
+            core_housing();
+            back_clipping_solid("cylinder");
         }
     }
 }
